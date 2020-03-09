@@ -1,4 +1,4 @@
-//// BackpAQ    V06M                                /////
+//// BackpAQ    V0.8                                /////
 //// (c) 2020 BackpAQ Labs LLC and Sustainable Silicon Valley
 //// Written by A. L. Clark 
 /*
@@ -24,9 +24,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
-const char* version = "V0.6M";
+const char* version = "V0.8AC";
 // Blynk Parameters
-char auth[] = "r6AOkB99mJnVjGzD7V7nZMI6GTveDcbY";  // Blynk Auth token
+char auth[] = "wdzUcpOergtPYvwuIS-bILkzTlYUpHkv";  // Drew's private Blynk Auth token (Updated 3/6/20)
 #define BLYNK_PRINT Serial
 #define BLYNK_MAX_READBYTES 2048
 //////////////////////////////////////////////////////
@@ -48,7 +48,7 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
 #define BME280_ADDRESS 0x76 // I2C address for temp/humidity sensor
 #define BATT_LEVEL A0 // analog pin to measure battery voltage
 ////////////////////////////////////////// Thingspeak  //////////////////////////////////////////////////////
-  int thingspeak_Send_Interval = 20000L; // Send data to Thingspeak every 20 seconds
+  int thingspeak_Send_Interval = 40000L; // Send data to Thingspeak roughly every 40 seconds
   const char* ThingSpeak_API_Server = "api.thingspeak.com";
   
   ////// Replace with your Thingspeak channels and API keys ////////////////////////////////////////////////
