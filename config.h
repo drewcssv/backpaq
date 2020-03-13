@@ -24,9 +24,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
-const char* version = "V0.8AC";
+const char* version = "V0.8D3";
 // Blynk Parameters
-char auth[] = "wdzUcpOergtPYvwuIS-bILkzTlYUpHkv";  // Drew's private Blynk Auth token (Updated 3/6/20)
+char auth[] = "wdzUcpOergtPYvwuIS-bILkzTlYUpHkv";  // This is Drew's private token. Insert your Blynk private token "auth" here
 #define BLYNK_PRINT Serial
 #define BLYNK_MAX_READBYTES 2048
 //////////////////////////////////////////////////////
