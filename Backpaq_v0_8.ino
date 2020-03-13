@@ -23,7 +23,7 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
-*/
+ */
 #include "config.h" // config file  make config changes here
 #include <ESP8266WiFi.h>
 #include <DNSServer.h>            //Local DNS Server used for redirecting all requests to the configuration portal
