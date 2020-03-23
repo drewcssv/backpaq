@@ -52,12 +52,11 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   const char* ThingSpeak_API_Server = "api.thingspeak.com";
 
   //  Create two Thingspeak channels with the following fields collection
-  //  The names of the field are not important, but the order of the fields should be defined as below
   ////// Replace with your Thingspeak channels and API keys ////////////////////////////////////////////////
   
   // BackpAQ PM Data 1:
-  unsigned long myChannelNumber1 = 891066;
-  const char * myWriteAPIKey1 = "A9L9601U1FROH6BE";
+  unsigned long myChannelNumber1 = 891066;          // <----- EDIT
+  const char * myWriteAPIKey1 = "A9L9601U1FROH6BE"; // <----- EDIT
 
   // Field1= Atm PM 1.0 (μg/m3)
   // Field2= Atm PM 2.5 (μg/m3)
@@ -69,8 +68,8 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   // Field8= AQI (US Standard)
 
   // BackpAQ PM Data 2:
-  unsigned long myChannelNumber2 = 896665;
-  const char * myWriteAPIKey2 = "6C1HZQR08LSTF5AG";
+  unsigned long myChannelNumber2 = 896665;          // <----- EDIT
+  const char * myWriteAPIKey2 = "6C1HZQR08LSTF5AG"; // <----- EDIT
   
   // Field1= Particulate count 0.1 µm per 0.1 L
   // Field2= Particulate count 0.3 µm per 0.1 L
