@@ -2,7 +2,7 @@
 //// (c) 2020 BackpAQ Labs LLC and Sustainable Silicon Valley
 //// Written by A. L. Clark 
 /*
-MIT License
+ MIT License
 
 Copyright (c) 2020 BackpAQ Labs LLC and Sustainable Silicon Valley
 
