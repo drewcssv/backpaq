@@ -1,4 +1,4 @@
-//// BackpAQ    V0.8                                /////
+//// BackpAQ    V0.88                                /////
 //// (c) 2020 BackpAQ Labs LLC and Sustainable Silicon Valley
 //// Written by A. L. Clark 
 /*
@@ -24,7 +24,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
-const char* version = "V0.8D3";
+const char* version = "V0.88";
 // Blynk Parameters
 char auth[] = "wdzUcpOergtPYvwuIS-bILkzTlYUpHkv";  // This is Drew's private token. Insert your Blynk private token "auth" here
 #define BLYNK_PRINT Serial
@@ -52,11 +52,12 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   const char* ThingSpeak_API_Server = "api.thingspeak.com";
 
   //  Create two Thingspeak channels with the following fields collection
+  //  The names of the field are not important, but the order of the fields should be defined as below
   ////// Replace with your Thingspeak channels and API keys ////////////////////////////////////////////////
   
   // BackpAQ PM Data 1:
-  unsigned long myChannelNumber1 = 891066;          // <----- EDIT
-  const char * myWriteAPIKey1 = "A9L9601U1FROH6BE"; // <----- EDIT
+  unsigned long myChannelNumber1 = 891066;
+  const char * myWriteAPIKey1 = "A9L9601U1FROH6BE";
 
   // Field1= Atm PM 1.0 (μg/m3)
   // Field2= Atm PM 2.5 (μg/m3)
@@ -68,8 +69,8 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   // Field8= AQI (US Standard)
 
   // BackpAQ PM Data 2:
-  unsigned long myChannelNumber2 = 896665;          // <----- EDIT
-  const char * myWriteAPIKey2 = "6C1HZQR08LSTF5AG"; // <----- EDIT
+  unsigned long myChannelNumber2 = 759545;
+  const char * myWriteAPIKey2 = "6C1HZQR08LSTF5AG";
   
   // Field1= Particulate count 0.1 µm per 0.1 L
   // Field2= Particulate count 0.3 µm per 0.1 L
@@ -77,8 +78,8 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   // Field4= Particulate count 1.0 µm per 0.1 L
   // Field5= Particulate count 2.5 µm per 0.1 L
   // Field6= Particulate count 10 µm per 0.1 L
-  // Field7= Battery Voltage
-  // Field8= WiFi RSSI 
+  // Field7= Software Version
+  // Field8= Date & Time
   
 ///////////////  Following are AQI Calculation Parameters //////
 ////////////////////////////////////////////////////////////////
