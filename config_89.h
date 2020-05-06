@@ -24,8 +24,9 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
-const char* version = "V0.88";
+const char* version = "V0.89";
 // Blynk Parameters
+char blynk_token[34] = "YOUR_BLYNK_TOKEN"; // will be filled in at WiFi config time and stored in eeprom
 char auth[] = "YlPSQn4BaNvoa8SKs-GdxJ106-h-T8mk";  // This is Drew's private token. Insert your Blynk private token "auth" here
 #define BLYNK_PRINT Serial
 #define BLYNK_MAX_READBYTES 2048
@@ -57,6 +58,9 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   
   // BackpAQ PM Data 1:
   //unsigned long thingspeak_A_channel = 891066;
+  char thingspeak_A_channel[8] = "891066";
+  unsigned long thingspeak_A_channel_i;
+  char thingspeak_A_key[20] = "A9L9601U1FROH6BE";
   const char * thingspeak_A_key_c = "A9L9601U1FROH6BE";
 
   // Field1= Atm PM 1.0 (μg/m3)
@@ -71,7 +75,10 @@ const int   SLEEP_TIME = 5 * 60 * 1000; // 5 minutes sleep time
   // BackpAQ PM Data 2:
   //unsigned long thingspeak_B_channel = 759545;
   const char * thingspeak_B_key_c = "6C1HZQR08LSTF5AG";
-  
+  unsigned long thingspeak_B_channel_i;
+  char thingspeak_B_channel[8] = "759545";
+  char thingspeak_B_key[20] = "6C1HZQR08LSTF5AG";
+ 
   // Field1= Particulate count 0.1 µm per 0.1 L
   // Field2= Particulate count 0.3 µm per 0.1 L
   // Field3= Particulate count 0.5 µm per 0.1 L

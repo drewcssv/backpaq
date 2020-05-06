@@ -1,4 +1,4 @@
-//// BackpAQ    V0.88                                /////
+//// BackpAQ    V0.89                                /////
 //// (c) 2020 BackpAQ Labs LLC and Sustainable Silicon Valley
 //// Written by A. L. Clark
 /*
@@ -52,17 +52,12 @@ char floatString[15]; // for temp/humidity string conversion
 char buffer[20];
 char pmLabel[20];
 String pmLabel1;
-char blynk_token[34] = "YOUR_BLYNK_TOKEN"; // will be filled in at WiFi config time and stored in eeprom
-char thingspeak_A_channel[8] = "891066";
-unsigned long thingspeak_A_channel_i;
-unsigned long thingspeak_B_channel_i;
-char thingspeak_B_channel[8] = "759545";
-char thingspeak_A_key[20] = "A9L9601U1FROH6BE";
-//const char * thingspeak_A_key = "A9L9601U1FROH6BE";
-char thingspeak_B_key[20] = "6C1HZQR08LSTF5AG";
-char backpaq_mobile_str[5];
+int backpaq_mobile_i;
 char backpaq_mobile_string [5];
-//const char * thingspeak_B_key = "6C1HZQR08LSTF5AG";
+bool thingspeakWebhook = true;
+bool backpaq_mobile = true; // default mode is mobile
+char default_GPS[20];
+char default_gps_position[25];
 char resultstr[50]; // for PM Sensor
 int status;
 float p; // pressure (not used here)
@@ -72,6 +67,8 @@ char tempF[20];
 char humid[20];
 float latI = 0;
 float lonI = 0;
+float default_lat;
+float default_lon;
 int savedPos = 0; // index for GPS position
 float latISav [500];
 float lonISav [500];
@@ -108,8 +105,6 @@ const int PIN_LED = 2; // D4 on NodeMCU and WeMos. Controls the onboard LED.
 // Indicates whether ESP has WiFi credentials saved from previous session, or double reset detected
 bool initialConfig = false;
 bool noBlynk;
-bool thingspeakWebhook = true;
-bool backpaq_mobile = true; // default mode for BackpAQ is mobile
 
 //// Create constructors ////
 Adafruit_SSD1306 OLED(-1); // Init OLED display
@@ -381,6 +376,16 @@ void SendToThingspeakWF(void) // Send to Thingspeak using native web client
 
   ThingSpeak.begin(client);  // Initialize ThingSpeak
 
+   // use GPS position from config since we don't have smartphone GPS avail
+    String def_latlon = default_gps_position; 
+    String default_lat_str = def_latlon.substring(0,7); // extract lat
+    String default_lon_str = def_latlon.substring(8,18); // extract lon
+   // convert to float
+    default_lat  = default_lat_str.toFloat();
+    default_lon = default_lon_str.toFloat();
+   // Serial.print("GPS Lat: ");  Serial.print(default_lat);
+  //  Serial.print(", Lon: ");    Serial.println(default_lon);
+
   // Update the first channel
   // set the fields with the values
   ThingSpeak.setField(1, dustvalues1.PM01Val_atm);
@@ -388,12 +393,17 @@ void SendToThingspeakWF(void) // Send to Thingspeak using native web client
   ThingSpeak.setField(3, dustvalues1.PM10Val_atm);
   ThingSpeak.setField(4, t);
   ThingSpeak.setField(5, h);
-  ThingSpeak.setField(6, latI);
-  ThingSpeak.setField(7, lonI);
+  ThingSpeak.setField(6, default_lat); // use lat entered in config
+  ThingSpeak.setField(7, default_lon); // use lon entered in config
   ThingSpeak.setField(8, airQualityIndex);
 
   // set the status
   //ThingSpeak.setStatus(myStatus);
+
+  Serial.print("Lat: ");
+  Serial.print(default_lat);
+  Serial.print(", Lon: ");
+  Serial.println(default_lon);
 
   // write to the ThingSpeak channel
   thingspeak_A_key_c = thingspeak_A_key; // cast to const char *
@@ -449,10 +459,9 @@ void SendToThingspeakWH(void) // Send to Thingspeak using Webhook
 void SendToThingspeak() // send data to Thingspeak cloud, channels defined in config.h tab
 {
   if (!privateMode) { // check for data privacy..."0" = send to Thingspeak, "1" = NOT send
-   //if (thingspeakWebhook || backpaq_mobile) // if user selects smartphone mode or checks "mobile" in config...
-     if (backpaq_mobile) // if user checks "mobile" in config...
+     if (backpaq_mobile == 1) // fetch value from config checkbox, 1 = mobile, 0 = stationary) // if user selects "mobile" mode in config...
       {
-      SendToThingspeakWH(); // send data to Thingspeak using smartphone/Blynk WebHook
+        SendToThingspeakWH(); // send data to Thingspeak using smartphone/Blynk WebHook
       } else
        {
         SendToThingspeakWF(); // send data to Thingspeak using WiFi and API call
@@ -773,7 +782,7 @@ void setup()
  // ------------------------------------------------------------------
   Serial.println("mounting FS...");
 
-  // set up SPIFFS file system and initialize for our Blynk token
+  // set up SPIFFS file system and initialize for our custom parameters
   if (SPIFFS.begin()) {
     Serial.println("mounted file system");
     if (SPIFFS.exists("/config.json")) 
@@ -794,7 +803,7 @@ void setup()
         if (json.success()) {
           Serial.println("\nparsed json");
           
-        // Read parameters   
+        // Read saved parameters   
           strcpy(blynk_token,json["blynk_token"]);
           strcpy(thingspeak_A_channel, json["thingspeak_A_channel"]);
           thingspeak_A_channel_i = atoi(thingspeak_A_channel);
@@ -802,7 +811,8 @@ void setup()
           strcpy(thingspeak_B_channel,json["thingspeak_B_channel"]);
           thingspeak_B_channel_i = atoi(thingspeak_B_channel);
           strcpy(thingspeak_B_key,json["thingspeak_B_key"]);
-          backpaq_mobile = json["backpaq_mode"];
+          backpaq_mobile = json["backpaq_mode"]; Serial.print("backpaq_mobile: "); Serial.println(backpaq_mobile);
+          strcpy(default_gps_position, json["default_GPS_position"]);
           
         } else {
           Serial.println("failed to load json config");
@@ -822,18 +832,19 @@ void setup()
     // - labelplacement parameter is WFM_LABEL_AFTER for checkboxes as label has to be placed after the input field
     
     char customhtml[24] = "type=\"checkbox\"";
-    if (backpaq_mobile)
+    if (backpaq_mobile) // if user saved "mobile mode" ...
     {
-      strcat(customhtml, " checked");
+      strcat(customhtml, " checked"); //...show "check"
     }
-  ESP_WMParameter p_backpaq_mode("bckpq_mode", "Check for BackpAQ mobile", "T", 2, customhtml, WFM_LABEL_AFTER);
- 
+  
   // create custom text for all parameters
-  ESP_WMParameter custom_blynk_token("Blynk", "Blynk auth token", blynk_token, 34); // Define additional parameter for config portal
-  ESP_WMParameter custom_thingspeak_A_channel("ThingspeakAC", "Thingspeak Channel A", thingspeak_A_channel, 8); // Define additional parameter for config portal 
-  ESP_WMParameter custom_thingspeak_A_key("ThingspeakAK", "Thingspeak API Write Key", thingspeak_A_key, 20); // Define additional parameter for config portal
-  ESP_WMParameter custom_thingspeak_B_channel("ThingspeakBC", "Thingspeak Channel B", thingspeak_B_channel, 8); // Define additional parameter for config portal
-  ESP_WMParameter custom_thingspeak_B_key("ThingspeakBK", "Thingspeak API Write Key", thingspeak_B_key, 20); // Define additional parameter for config portal
+  ESP_WMParameter p_backpaq_mode("bckpq_mode", "Run BackpAQ in mobile mode", "T", 2, customhtml, WFM_LABEL_AFTER);
+  ESP_WMParameter custom_blynk_token("Blynk", "<small>Blynk auth token</small>", blynk_token, 34); // Define additional parameter for config portal
+  ESP_WMParameter custom_gps_position("GPS", "<small>Default GPS Position</small>", default_gps_position, 25); // Enter default GPS position (format: Lat, Lon)
+  ESP_WMParameter custom_thingspeak_A_channel("ThingspeakAC", "<small>Thingspeak Channel A</small>", thingspeak_A_channel, 8); // Define additional parameter for config portal 
+  ESP_WMParameter custom_thingspeak_A_key("ThingspeakAK", "<small>Thingspeak API Write Key</small>", thingspeak_A_key, 20); // Define additional parameter for config portal
+  ESP_WMParameter custom_thingspeak_B_channel("ThingspeakBC", "<small>Thingspeak Channel B</small>", thingspeak_B_channel, 8); // Define additional parameter for config portal
+  ESP_WMParameter custom_thingspeak_B_key("ThingspeakBK", "<small>Thingspeak API Write Key</small>", thingspeak_B_key, 20); // Define additional parameter for config portal
   ESP_WMParameter p_hint("<small>*Hint: if you want to reuse the currently active WiFi credentials, leave SSID and Password fields empty</small>");
   ESP_WMParameter p_space("<hr noshade>"); 
 
@@ -853,7 +864,7 @@ void setup()
     digitalWrite(PIN_LED, LOW); // turn the LED on by making the voltage LOW to tell us we are in configuration mode.
 
     //Local intialization. Once its business is done, there is no need to keep it around
-    ESP_WiFiManager ESP_wifiManager; // using Wifi Manager with customer portal capture to scan/prompt for ssid, password
+    ESP_WiFiManager ESP_wifiManager; // using Wifi Manager with customer portal capture to scan/prompt for ssid, password, other parms
 
    // ESP_wifiManager.setAPStaticIPConfig(IPAddress(192, 168, 4, 48), IPAddress(10,0,1, 1), IPAddress(255, 255, 255, 0)); // ESP version does this automatically
     ESP_wifiManager.setAPCallback(configModeCallback); // alert local display of need to connect to config SSID
@@ -868,6 +879,8 @@ void setup()
     ESP_wifiManager.addParameter(&custom_blynk_token); // Blynk auth token
     ESP_wifiManager.addParameter(&p_space); // horiz rule
     ESP_wifiManager.addParameter(&p_backpaq_mode); // Mobile or stationary mode
+    ESP_wifiManager.addParameter(&p_space); // horiz rule
+    ESP_wifiManager.addParameter(&custom_gps_position); // Default GPS position
     ESP_wifiManager.addParameter(&p_space); // horiz rule
     ESP_wifiManager.addParameter(&custom_thingspeak_A_channel); // Thingspeak A Channel
     ESP_wifiManager.addParameter(&custom_thingspeak_A_key); // Write API Key
@@ -894,8 +907,7 @@ void setup()
     OLED.display();
   } else
   { // connected!
-    Serial.print("local ip: ");
-    Serial.println(WiFi.localIP());
+    Serial.print("local ip: ");    Serial.println(WiFi.localIP());
 
     //read updated parameters from Config Portal
 
@@ -904,10 +916,12 @@ void setup()
     strcpy(thingspeak_A_key, custom_thingspeak_A_key.getValue());
     strcpy(thingspeak_B_channel, custom_thingspeak_B_channel.getValue());
     strcpy(thingspeak_B_key, custom_thingspeak_B_key.getValue());
-   
-    backpaq_mobile = (strncmp(p_backpaq_mode.getValue(), "T", 1) == 0); // fetch value from config checkbox, 1 = mobile, 0 = stationary
-    Serial.print("Mobile (1) or stationary 0): ");
-    Serial.println(backpaq_mobile); 
+    strcpy(default_gps_position, custom_gps_position.getValue());
+    bool ggg = p_backpaq_mode.getValue(); // Serial.print("backpaq_mode: "); Serial.println(ggg);
+    backpaq_mobile = (strncmp(p_backpaq_mode.getValue(), "T", 1) == 0); // fetch value from config checkbox, returns "0" if found
+
+    Serial.print("Mobile (1) or stationary 0): ");    Serial.println(backpaq_mobile); 
+    
     // -----------------------------------------------------------------------------------------
     //save the custom parameters to FS
     // -----------------------------------------------------------------------------------------
@@ -923,6 +937,7 @@ void setup()
       json["thingspeak_B_channel"] = thingspeak_B_channel;
       json["thingspeak_B_key"] = thingspeak_B_key;
       json["backpaq_mode"] = backpaq_mobile;
+      json["default_GPS_position"] = default_gps_position;
 
       File configFile = SPIFFS.open("/config.json", "w");
       if (!configFile) {
