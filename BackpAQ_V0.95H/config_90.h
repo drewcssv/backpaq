@@ -1,4 +1,4 @@
-//// BackpAQ    V0.89                                /////
+//// BackpAQ    V0.95                                /////
 //// (c) 2020 BackpAQ Labs LLC and Sustainable Silicon Valley
 //// Written by A. L. Clark 
 /*
@@ -24,7 +24,7 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE
 */
-const char* version = "V0.93H"; // for Heltec ESP32 WiFi Kit V2 w/OLED
+const char* version = "V0.95H"; // for Heltec ESP32 WiFi Kit V2 w/OLED
 // Blynk Parameters
 char blynk_token[34] = "YOUR_BLYNK_TOKEN"; // will be filled in at WiFi config time and stored in eeprom
 char Blynk_server[] = "blynk-cloud.com";  // URL for Blynk Cloud Server
